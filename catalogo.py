@@ -78,6 +78,57 @@ class Catalogo:
 
         return sorted(conteudos_em_comum)
 
+    # --- normalização dos dados ---
+    def _normalizar_rating(
+        self,
+        rating: int | float | str | None,
+    ) -> float | None:
+        if rating is None:
+            return None
+
+        return float(rating)
+
+    def _achatar_generos(self, generos: str | list) -> list[str]:
+        if isinstance(generos, str):
+            return [generos]
+
+        generos_achatados = []
+
+        for genero in generos:
+            generos_achatados.extend(self._achatar_generos(genero))
+
+        return generos_achatados
+
+    def _normalizar_data(self, data: str) -> str:
+        if "/" not in data:
+            return data
+
+        dia, mes, ano = data.split("/")
+        return f"{ano}-{mes}-{dia}"
+
+    def _normalizar_execucoes(
+        self,
+        execucoes: int | str | None,
+    ) -> int | None:
+        if execucoes is None:
+            return None
+
+        if isinstance(execucoes, str):
+            execucoes = execucoes.replace(",", "")
+
+        return int(execucoes)
+
+    def _somar_duracoes_das_faixas(self, faixas: list[dict]) -> int:
+        duracao_total = 0
+
+        for faixa in faixas:
+            duracao = faixa.get("duracao_seg")
+
+            if duracao is not None:
+                duracao_total += duracao
+
+        return duracao_total
+
     # --- dados de um conteúdo ---
     def rating_de(self, conteudo_id: str) -> float | None: ...
     def duracao_total_de(self, conteudo_id: str) -> int | None: ...
